@@ -2,6 +2,7 @@ package seedwork
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/juanmaabanto/go-seedwork/seedwork/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -113,14 +114,17 @@ func (repo BaseRepository) InsertOne(ctx context.Context, document interface{}) 
 	item := Document{}
 
 	cursor.Decode(item)
-
+	fmt.Println("repo")
+	fmt.Println(item)
 	a := struct {
-		Id       int64 `json:"id" bson:"_id,omitempty"`
-		document interface{}
+		Id       int64       `json:"id" bson:"_id,omitempty"`
+		document interface{} `bson:"inline"`
 	}{
 		Id:       item.Id + 1,
 		document: document,
 	}
+
+	fmt.Println(a)
 
 	result, err := repo.collection.InsertOne(ctx, a)
 
