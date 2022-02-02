@@ -2,7 +2,6 @@ package seedwork
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/juanmaabanto/go-seedwork/seedwork/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,9 +12,9 @@ import (
 
 type IBaseRepository interface {
 	Count(ctx context.Context, filter interface{}) (int64, error)
-	DeleteById(ctx context.Context, id string) (int64, error)
+	DeleteById(ctx context.Context, id int64) (int64, error)
 	FilterBy(ctx context.Context, filter interface{}, receiver []interface{}) error
-	FindById(ctx context.Context, id string, receiver interface{}) error
+	FindById(ctx context.Context, id int64, receiver interface{}) error
 	FindOne(ctx context.Context, filter interface{}, receiver interface{}) error
 	InsertMany(ctx context.Context, documents []interface{}) ([]string, error)
 	InsertOne(ctx context.Context, document interface{}) (string, error)
@@ -41,15 +40,10 @@ func (repo BaseRepository) Count(ctx context.Context, filter interface{}) (int64
 	return result, err
 }
 
-func (repo BaseRepository) DeleteById(ctx context.Context, id string) (int64, error) {
-	objID, err := primitive.ObjectIDFromHex(id)
+func (repo BaseRepository) DeleteById(ctx context.Context, id int64) (int64, error) {
 	var result *mongo.DeleteResult
 
-	if err != nil {
-		result, err = repo.collection.DeleteOne(ctx, bson.D{{Key: "_id", Value: id}})
-	} else {
-		result, err = repo.collection.DeleteOne(ctx, bson.D{{Key: "_id", Value: objID}})
-	}
+	result, err := repo.collection.DeleteOne(ctx, bson.D{{Key: "_id", Value: id}})
 
 	return result.DeletedCount, err
 }
@@ -66,21 +60,8 @@ func (repo BaseRepository) FilterBy(ctx context.Context, filter interface{}, rec
 	return nil
 }
 
-func (repo BaseRepository) FindById(ctx context.Context, id string, receiver interface{}) error {
-	var result *mongo.SingleResult
-	objID, err := primitive.ObjectIDFromHex(id)
-
-	if err != nil {
-		val, errVal := strconv.Atoi(id)
-
-		if errVal == nil {
-			result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: val}})
-		} else {
-			result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
-		}
-	} else {
-		result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: objID}})
-	}
+func (repo BaseRepository) FindById(ctx context.Context, id int64, receiver interface{}) error {
+	result := repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
 
 	return result.Decode(receiver)
 }
@@ -118,7 +99,30 @@ func (repo BaseRepository) InsertMany(ctx context.Context, documents []interface
 }
 
 func (repo BaseRepository) InsertOne(ctx context.Context, document interface{}) (string, error) {
-	result, err := repo.collection.InsertOne(ctx, document)
+	options := options.Find()
+
+	options.SetSort(bson.D{{"_id", -1}})
+	options.SetLimit(1)
+
+	cursor, err := repo.collection.Find(ctx, bson.D{}, options)
+
+	if err != nil {
+		return "", err
+	}
+
+	item := Document{}
+
+	cursor.Decode(item)
+
+	a := struct {
+		Id       int64 `json:"id" bson:"_id,omitempty"`
+		document interface{}
+	}{
+		Id:       item.Id,
+		document: document,
+	}
+
+	result, err := repo.collection.InsertOne(ctx, a)
 
 	return result.InsertedID.(primitive.ObjectID).Hex(), err
 }
