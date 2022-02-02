@@ -2,6 +2,7 @@ package seedwork
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/juanmaabanto/go-seedwork/seedwork/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -66,11 +67,17 @@ func (repo BaseRepository) FilterBy(ctx context.Context, filter interface{}, rec
 }
 
 func (repo BaseRepository) FindById(ctx context.Context, id string, receiver interface{}) error {
-	objID, err := primitive.ObjectIDFromHex(id)
 	var result *mongo.SingleResult
+	objID, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
+		val, errVal := strconv.Atoi(id)
+
+		if errVal == nil {
+			result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: val}})
+		} else {
+			result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
+		}
 	} else {
 		result = repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: objID}})
 	}
