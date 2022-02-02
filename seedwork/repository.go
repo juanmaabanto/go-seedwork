@@ -118,7 +118,7 @@ func (repo BaseRepository) InsertOne(ctx context.Context, document interface{}) 
 		Id       int64 `json:"id" bson:"_id,omitempty"`
 		document interface{}
 	}{
-		Id:       item.Id,
+		Id:       item.Id + 1,
 		document: document,
 	}
 
