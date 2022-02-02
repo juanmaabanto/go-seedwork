@@ -64,6 +64,10 @@ func (repo BaseRepository) FilterBy(ctx context.Context, filter interface{}, rec
 func (repo BaseRepository) FindById(ctx context.Context, id int64, receiver interface{}) error {
 	result := repo.collection.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
 
+	if result.Err() != nil && result.Err() != mongo.ErrNoDocuments {
+		return nil
+	}
+
 	return result.Decode(receiver)
 }
 
