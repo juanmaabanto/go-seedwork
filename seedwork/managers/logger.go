@@ -60,6 +60,7 @@ func (log LoggerManager) logger(endPoint string, message string, trace string, u
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println(message)
 		return ""
 	}
 	defer res.Body.Close()
@@ -67,6 +68,7 @@ func (log LoggerManager) logger(endPoint string, message string, trace string, u
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println(message)
 		return ""
 	}
 
