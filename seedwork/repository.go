@@ -19,7 +19,7 @@ type IBaseRepository interface {
 	FindOne(ctx context.Context, filter interface{}, receiver interface{}) error
 	InsertMany(ctx context.Context, documents []interface{}) ([]string, error)
 	InsertOne(ctx context.Context, document interface{}) (string, error)
-	Paginated(ctx context.Context, filter interface{}, sort interface{}, pageSize int64, start int64, receiver interface{}) error
+	Paginated(ctx context.Context, filter interface{}, sort interface{}, pageSize int64, start int64, receiver []interface{}) error
 	UpdateOne(ctx context.Context, document interface{}) error
 }
 
