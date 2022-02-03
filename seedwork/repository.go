@@ -135,7 +135,7 @@ func (repo BaseRepository) InsertOne(ctx context.Context, document interface{}) 
 	return result.InsertedID.(primitive.ObjectID).Hex(), err
 }
 
-func (repo BaseRepository) Paginated(ctx context.Context, filter interface{}, sort interface{}, pageSize int64, start int64, receiver interface{}) error {
+func (repo BaseRepository) Paginated(ctx context.Context, filter interface{}, sort interface{}, pageSize int64, start int64, receiver []interface{}) error {
 	options := options.Find()
 
 	options.SetSort(sort)
