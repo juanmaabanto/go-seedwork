@@ -148,7 +148,11 @@ func (repo BaseRepository) Paginated(ctx context.Context, filter interface{}, so
 		return err
 	}
 
-	cursor.Decode(receiver)
+	err = cursor.Decode(receiver)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
