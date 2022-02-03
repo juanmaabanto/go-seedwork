@@ -56,7 +56,7 @@ func (repo BaseRepository) FilterBy(ctx context.Context, filter interface{}, rec
 		return err
 	}
 
-	cursor.Decode(&receiver)
+	cursor.Decode(receiver)
 
 	return nil
 }
@@ -117,7 +117,7 @@ func (repo BaseRepository) InsertOne(ctx context.Context, document interface{}) 
 
 	item := Document{}
 
-	cursor.Decode(&item)
+	cursor.Decode(item)
 	fmt.Println("repo")
 	fmt.Println(item)
 	a := struct {
@@ -148,7 +148,7 @@ func (repo BaseRepository) Paginated(ctx context.Context, filter interface{}, so
 		return err
 	}
 
-	err = cursor.All(ctx, &receiver)
+	err = cursor.All(ctx, receiver)
 
 	if err != nil {
 		return err
